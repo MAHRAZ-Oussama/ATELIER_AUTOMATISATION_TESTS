@@ -9,6 +9,7 @@ Métriques calculées :
 """
 
 import datetime
+import time
 from tester.tests import ALL_TESTS
 
 
@@ -34,7 +35,9 @@ def run_all() -> dict:
     """
     results = []
 
-    for test_fn in ALL_TESTS:
+    for i, test_fn in enumerate(ALL_TESTS):
+        if i > 0:
+            time.sleep(0.5)  # évite le rate limiting
         try:
             result = test_fn()
         except Exception as exc:

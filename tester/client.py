@@ -10,7 +10,7 @@ import time
 import os
 import requests
 
-BASE_URL = "http://api.ipstack.com"
+BASE_URL = "https://api.ipstack.com"
 TIMEOUT = 3  # secondes
 MAX_RETRIES = 1
 # La clé API est lue depuis la variable d'environnement IPSTACK_KEY
@@ -47,8 +47,11 @@ def get(endpoint: str, params: dict = None, retries: int = 0) -> dict:
         result["latency_ms"] = round(elapsed, 2)
         result["status_code"] = response.status_code
 
-        # Gestion du rate limiting (429)
+        # Gestion du rate limiting (429) — retry avec délai
         if response.status_code == 429:
+            if retries < MAX_RETRIES:
+                time.sleep(2)
+                return get(endpoint, params, retries + 1)
             result["error"] = "Rate limit atteint (429)"
             return result
 
