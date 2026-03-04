@@ -361,9 +361,9 @@
     <div class="status-dot"></div>
     <span class="nav-tag">Testing as Code</span>
     {% if api_key_set %}
-      <span class="chip ok" style="font-size:11px;">🔑 API OK</span>
+      <span class="chip ok" style="font-size:11px;">API OK</span>
     {% else %}
-      <span class="chip bad" style="font-size:11px;">⚠ No API Key</span>
+      <span class="chip bad" style="font-size:11px;">No API Key</span>
     {% endif %}
   </div>
 </nav>
@@ -381,15 +381,15 @@
       <span>Métriques QoS temps réel</span>
     </div>
     <div class="chips">
-      <span class="chip">🌐 IPStack API</span>
-      <span class="chip ok">⚡ Flask · PythonAnywhere</span>
-      <span class="chip warn">🧪 Testing as Code</span>
+      <span class="chip">IPStack API</span>
+      <span class="chip ok">Flask · PythonAnywhere</span>
+      <span class="chip warn">Testing as Code</span>
     </div>
   </header>
 
   {% if not api_key_set %}
   <div class="notice fade-in">
-    <span class="notice-icon">⚠️</span>
+    <span class="notice-icon">!</span>
     <div>
       La variable d'environnement <strong>IPSTACK_KEY</strong> n'est pas définie.
       Définissez-la dans votre environnement PythonAnywhere pour lancer des runs.
@@ -399,10 +399,10 @@
 
   <!-- ── Actions ── -->
   <div class="actions fade-in">
-    <a href="/run" class="btn primary">▶ Lancer un run</a>
-    <a href="/export" class="btn">⬇ Export JSON</a>
-    <a href="/health" class="btn">💚 Health</a>
-    <a href="/" class="btn">📄 Consignes</a>
+    <a href="/run" class="btn primary">Lancer un run</a>
+    <a href="/export" class="btn">Export JSON</a>
+    <a href="/health" class="btn">Health</a>
+    <a href="/consignes" class="btn">Consignes</a>
   </div>
 
   <!-- ════════════════════════════════════════
@@ -415,37 +415,31 @@
   <!-- KPI row -->
   <div class="kpi-grid">
     <div class="kpi {% if last.failed == 0 %}ok{% else %}bad{% endif %} fade-in">
-      <span class="kpi-icon">✅</span>
       <div class="kpi-label">Tests passés</div>
       <div class="kpi-value">{{ last.passed }}/{{ last.total }}</div>
       <div class="kpi-sub">{{ "%.0f"|format(last.passed / last.total * 100 if last.total else 0) }}% de réussite</div>
     </div>
     <div class="kpi {% if last.failed > 0 %}bad{% else %}ok{% endif %} fade-in">
-      <span class="kpi-icon">{% if last.failed > 0 %}❌{% else %}🎯{% endif %}</span>
       <div class="kpi-label">Tests échoués</div>
       <div class="kpi-value">{{ last.failed }}</div>
       <div class="kpi-sub">{% if last.failed == 0 %}Parfait !{% else %}À corriger{% endif %}</div>
     </div>
     <div class="kpi {% if last.error_rate > 0.2 %}bad{% elif last.error_rate > 0 %}warn{% else %}ok{% endif %} fade-in">
-      <span class="kpi-icon">📊</span>
       <div class="kpi-label">Taux d'erreur</div>
       <div class="kpi-value">{{ "%.1f"|format(last.error_rate * 100) }}%</div>
       <div class="kpi-sub">Seuil critique : 20%</div>
     </div>
     <div class="kpi {% if last.latency_avg > 1000 %}bad{% elif last.latency_avg > 500 %}warn{% else %}ok{% endif %} fade-in">
-      <span class="kpi-icon">⚡</span>
       <div class="kpi-label">Latence moyenne</div>
       <div class="kpi-value">{{ last.latency_avg }}</div>
       <div class="kpi-sub">ms · seuil warn : 500ms</div>
     </div>
     <div class="kpi {% if last.latency_p95 > 1500 %}bad{% elif last.latency_p95 > 800 %}warn{% else %}ok{% endif %} fade-in">
-      <span class="kpi-icon">📈</span>
       <div class="kpi-label">Latence p95</div>
       <div class="kpi-value">{{ last.latency_p95 }}</div>
       <div class="kpi-sub">ms · 95e percentile</div>
     </div>
     <div class="kpi {% if last.availability == 1.0 %}ok{% else %}bad{% endif %} fade-in">
-      <span class="kpi-icon">{% if last.availability == 1.0 %}🟢{% else %}🔴{% endif %}</span>
       <div class="kpi-label">Disponibilité</div>
       <div class="kpi-value">{% if last.availability == 1.0 %}UP{% else %}DOWN{% endif %}</div>
       <div class="kpi-sub">{% if last.availability == 1.0 %}API opérationnelle{% else %}Incidents détectés{% endif %}</div>
@@ -459,7 +453,7 @@
     <div class="card fade-in">
       <div class="card-header">
         <div class="card-title">
-          <span class="icon">🎯</span> Taux de réussite
+          Taux de réussite
         </div>
       </div>
       {% set pass_pct = (last.passed / last.total * 100)|int if last.total > 0 else 0 %}
@@ -496,7 +490,7 @@
     <!-- Latency summary -->
     <div class="card fade-in">
       <div class="card-header">
-        <div class="card-title"><span class="icon">⚡</span> Latences</div>
+        <div class="card-title">Latences</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
         <div>
@@ -506,7 +500,8 @@
           </div>
           <div style="height:6px;border-radius:999px;background:rgba(255,255,255,.07);">
             {% set avg_pct = [last.latency_avg / 20, 100]|min %}
-            <div style="height:100%;border-radius:999px;width:{{ avg_pct }}%;background:{% if last.latency_avg > 1000 %}var(--bad){% elif last.latency_avg > 500 %}var(--warn){% else %}var(--ok){% endif %};"></div>
+            {% set avg_color = 'var(--bad)' if last.latency_avg > 1000 else ('var(--warn)' if last.latency_avg > 500 else 'var(--ok)') %}
+            <div style="height:100%; border-radius:999px; width:{{ avg_pct }}%; background:{{ avg_color }};"></div>
           </div>
         </div>
         <div>
@@ -516,12 +511,13 @@
           </div>
           <div style="height:6px;border-radius:999px;background:rgba(255,255,255,.07);">
             {% set p95_pct = [last.latency_p95 / 20, 100]|min %}
-            <div style="height:100%;border-radius:999px;width:{{ p95_pct }}%;background:{% if last.latency_p95 > 1500 %}var(--bad){% elif last.latency_p95 > 800 %}var(--warn){% else %}var(--ok){% endif %};"></div>
+            {% set p95_color = 'var(--bad)' if last.latency_p95 > 1500 else ('var(--warn)' if last.latency_p95 > 800 else 'var(--ok)') %}
+            <div style="height:100%; border-radius:999px; width:{{ p95_pct }}%; background:{{ p95_color }};"></div>
           </div>
         </div>
         <div class="divider" style="margin:4px 0;"></div>
         <div style="font-size:12px;color:var(--muted);text-align:center;">
-          Seuils : avg &lt; 500ms ✅ · avg &lt; 1000ms ⚠️ · p95 &lt; 800ms ✅
+          Seuils : avg &lt; 500ms OK · avg &lt; 1000ms WARN · p95 &lt; 800ms OK
         </div>
       </div>
     </div>
@@ -530,7 +526,7 @@
   <!-- Détail des tests -->
   <div class="card fade-in">
     <div class="card-header">
-      <div class="card-title"><span class="icon">🧪</span> Détail des tests du dernier run</div>
+      <div class="card-title">Détail des tests du dernier run</div>
       <div class="card-meta">{{ last.tests|length }} tests · {{ last.timestamp[:10] }}</div>
     </div>
     <div class="table-wrap">
@@ -566,7 +562,6 @@
   {% else %}
   <div class="card fade-in">
     <div class="empty">
-      <span class="empty-icon">🚀</span>
       <span>Aucun run effectué pour l'instant.</span>
       <span class="small">Cliquez sur <strong>▶ Lancer un run</strong> pour démarrer.</span>
     </div>
@@ -581,7 +576,7 @@
   <div class="section-label fade-in">Tendance · {{ runs|length }} derniers runs</div>
   <div class="card fade-in">
     <div class="card-header">
-      <div class="card-title"><span class="icon">📉</span> Taux de réussite dans le temps</div>
+      <div class="card-title">Taux de réussite dans le temps</div>
       <div class="card-meta">{{ runs|length }} runs · du plus ancien au plus récent</div>
     </div>
     <div class="trend-bars">
@@ -614,7 +609,7 @@
   <div class="section-label fade-in">Historique · 20 derniers runs</div>
   <div class="card fade-in">
     <div class="card-header">
-      <div class="card-title"><span class="icon">🗂</span> Tous les runs</div>
+      <div class="card-title">Tous les runs</div>
       {% if runs %}
       <div class="card-meta">{{ runs|length }} run{{ 's' if runs|length > 1 }}</div>
       {% endif %}
@@ -666,7 +661,6 @@
     </div>
     {% else %}
     <div class="empty">
-      <span class="empty-icon">📭</span>
       <span>Aucun run enregistré.</span>
     </div>
     {% endif %}

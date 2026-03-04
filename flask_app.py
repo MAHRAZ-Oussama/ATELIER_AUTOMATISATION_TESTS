@@ -14,7 +14,7 @@ Elle ne doit JAMAIS être hardcodée ici.
 import os
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    load_dotenv(override=True)
 except ImportError:
     pass
 from flask import Flask, render_template, jsonify, redirect, url_for
@@ -55,7 +55,7 @@ def consignes():
 # ─────────────────────────────────────────────
 @app.get("/run")
 def run_tests():
-    if not _API_KEY_SET:
+    if not os.environ.get("IPSTACK_KEY"):
         return jsonify({"error": "Variable d'environnement IPSTACK_KEY non définie"}), 500
 
     result = run_all()

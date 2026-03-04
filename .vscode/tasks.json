@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Flask App",
+			"type": "shell",
+			"command": "cd \"/Users/mahraz/Desktop/Séquence 5/ATELIER_AUTOMATISATION_TESTS\" && \"/Users/mahraz/Desktop/Séquence 5/.venv/bin/python\" flask_app.py",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
