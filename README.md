@@ -26,7 +26,7 @@ Difficulté : Très facile (~10 minutes)
 🧩 Séquence 2 : Création d'un site chez Pythonanywhere
 ---------------------------------------------------
 Objectif : Créer un hébergement sur Pythonanywhere  
-Difficulté : Faible (~10 minutes)
+Difficulté : Faible (~10 minutes) 
 ---------------------------------------------------
 
 Rendez-vous sur **https://www.pythonanywhere.com/** et créez vous un compte.  
