@@ -30,9 +30,17 @@ _API_KEY_SET = bool(os.environ.get("IPSTACK_KEY", ""))
 
 
 # ─────────────────────────────────────────────
-# Route / — Consignes
+# Route / — Redirige vers le dashboard
 # ─────────────────────────────────────────────
 @app.get("/")
+def index():
+    return redirect(url_for("dashboard"))
+
+
+# ─────────────────────────────────────────────
+# Route /consignes — Page des consignes
+# ─────────────────────────────────────────────
+@app.get("/consignes")
 def consignes():
     return render_template("consignes.html")
 
