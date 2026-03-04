@@ -12,11 +12,18 @@ Elle ne doit JAMAIS être hardcodée ici.
 """
 
 import os
+
+# Charge .env si disponible (dev local)
 try:
     from dotenv import load_dotenv
     load_dotenv(override=True)
 except ImportError:
     pass
+
+# Fallback : clé directement définie si aucune variable d'env n'est présente
+# (utilisé sur PythonAnywhere où le WSGI ne définit pas IPSTACK_KEY)
+if not os.environ.get("IPSTACK_KEY"):
+    os.environ["IPSTACK_KEY"] = "0c84a446459590597355e1ad2a244384"
 from flask import Flask, render_template, jsonify, redirect, url_for
 from tester.runner import run_all
 from storage import save_run, list_runs, get_last_run, init_db
