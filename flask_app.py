@@ -20,10 +20,9 @@ try:
 except ImportError:
     pass
 
-# Fallback : clé directement définie si aucune variable d'env n'est présente
-# (utilisé sur PythonAnywhere où le WSGI ne définit pas IPSTACK_KEY)
-if not os.environ.get("IPSTACK_KEY"):
-    os.environ["IPSTACK_KEY"] = "0c84a446459590597355e1ad2a244384"
+# Clé API directement définie
+os.environ["IPSTACK_KEY"] = "0c84a446459590597355e1ad2a244384"
+
 from flask import Flask, render_template, jsonify, redirect, url_for
 from tester.runner import run_all
 from storage import save_run, list_runs, get_last_run, init_db
@@ -62,9 +61,6 @@ def consignes():
 # ─────────────────────────────────────────────
 @app.get("/run")
 def run_tests():
-    if not os.environ.get("IPSTACK_KEY"):
-        return jsonify({"error": "Variable d'environnement IPSTACK_KEY non définie"}), 500
-
     result = run_all()
     save_run(result)
     return redirect(url_for("dashboard"))
