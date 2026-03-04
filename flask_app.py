@@ -1,16 +1,92 @@
-from flask import Flask, render_template_string, render_template, jsonify, request, redirect, url_for, session
-from flask import render_template
-from flask import json
-from urllib.request import urlopen
-from werkzeug.utils import secure_filename
-import sqlite3
+"""
+flask_app.py — Application Flask principale
+Routes exposées :
+  GET /              → page des consignes
+  GET /run           → déclenche un run de tests et sauvegarde en SQLite
+  GET /dashboard     → tableau de bord (historique + métriques QoS)
+  GET /health        → statut JSON de l'application (bonus)
+  GET /export        → export JSON du dernier run (bonus)
+
+La clé API IPStack est lue depuis la variable d'environnement IPSTACK_KEY.
+Elle ne doit JAMAIS être hardcodée ici.
+"""
+
+import os
+from flask import Flask, render_template, jsonify, redirect, url_for
+from tester.runner import run_all
+from storage import save_run, list_runs, get_last_run, init_db
 
 app = Flask(__name__)
 
+# ─────────────────────────────────────────────
+# Initialisation de la base de données
+# ─────────────────────────────────────────────
+init_db()
+
+# ─────────────────────────────────────────────
+# Garde-fou : vérification de la clé API au démarrage
+# ─────────────────────────────────────────────
+_API_KEY_SET = bool(os.environ.get("IPSTACK_KEY", ""))
+
+
+# ─────────────────────────────────────────────
+# Route / — Consignes
+# ─────────────────────────────────────────────
 @app.get("/")
 def consignes():
-     return render_template('consignes.html')
+    return render_template("consignes.html")
+
+
+# ─────────────────────────────────────────────
+# Route /run — Déclenche un run de tests
+# ─────────────────────────────────────────────
+@app.get("/run")
+def run_tests():
+    if not _API_KEY_SET:
+        return jsonify({"error": "Variable d'environnement IPSTACK_KEY non définie"}), 500
+
+    result = run_all()
+    save_run(result)
+    return redirect(url_for("dashboard"))
+
+
+# ─────────────────────────────────────────────
+# Route /dashboard — Tableau de bord
+# ─────────────────────────────────────────────
+@app.get("/dashboard")
+def dashboard():
+    runs = list_runs(limit=20)
+    last = runs[0] if runs else None
+    return render_template("dashboard.html", runs=runs, last=last, api_key_set=_API_KEY_SET)
+
+
+# ─────────────────────────────────────────────
+# Route /health — Santé de l'application (bonus)
+# ─────────────────────────────────────────────
+@app.get("/health")
+def health():
+    last = get_last_run()
+    status = "ok" if _API_KEY_SET else "degraded"
+    return jsonify({
+        "status": status,
+        "api_key_configured": _API_KEY_SET,
+        "last_run_timestamp": last["timestamp"] if last else None,
+        "last_run_availability": last["availability"] if last else None,
+        "last_run_error_rate": last["error_rate"] if last else None,
+    })
+
+
+# ─────────────────────────────────────────────
+# Route /export — Export JSON du dernier run (bonus)
+# ─────────────────────────────────────────────
+@app.get("/export")
+def export_last_run():
+    last = get_last_run()
+    if not last:
+        return jsonify({"error": "Aucun run disponible"}), 404
+    return jsonify(last)
+
 
 if __name__ == "__main__":
-    # utile en local uniquement
+    # Utile en local uniquement
     app.run(host="0.0.0.0", port=5000, debug=True)

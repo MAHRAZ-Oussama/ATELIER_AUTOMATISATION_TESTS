@@ -1,13 +1,33 @@
 # API Choice
 
-- Étudiant :
-- API choisie :
-- URL base :
-- Documentation officielle / README :
-- Auth : None / API Key / OAuth
+- Étudiant : MAHRAZ Oussama
+- API choisie : IPStack (Géolocalisation d'adresses IP)
+- URL base : `http://api.ipstack.com/`
+- Documentation officielle / README : https://ipstack.com/documentation
+- Auth : API Key (paramètre `access_key` dans l'URL)
 - Endpoints testés :
-  - GET ...
-  - GET ...
+  - GET `http://api.ipstack.com/{ip}?access_key=<KEY>` — Géolocalisation d'une IP spécifique
+  - GET `http://api.ipstack.com/check?access_key=<KEY>` — Géolocalisation de l'IP appelante
+  - GET `http://api.ipstack.com/invalid_ip?access_key=<KEY>` — Vérification du comportement sur IP invalide
+  - GET `http://api.ipstack.com/8.8.8.8?access_key=<KEY>&fields=ip,country_name` — Sélection de champs spécifiques
 - Hypothèses de contrat (champs attendus, types, codes) :
+  - Code HTTP : 200 pour toutes les requêtes (même les erreurs métier sont renvoyées en 200 avec un objet `error`)
+  - Champs attendus sur une IP valide :
+    - `ip` (string) — adresse IP analysée
+    - `type` (string) — "ipv4" ou "ipv6"
+    - `country_code` (string | null) — code pays ISO 2 lettres
+    - `country_name` (string | null) — nom du pays
+    - `region_name` (string | null) — nom de la région
+    - `city` (string | null) — ville
+    - `latitude` (float | null) — latitude géographique
+    - `longitude` (float | null) — longitude géographique
+  - Champs attendus sur IP invalide : `{"success": false, "error": {"code": int, "type": string, "info": string}}`
+  - Content-Type réponse : `application/json`
 - Limites / rate limiting connu :
+  - Plan gratuit : 100 requêtes/mois
+  - Pas de HTTPS sur le plan gratuit (HTTP uniquement)
+  - Pas de rate limit strict par minute documenté, mais usage raisonnable requis
 - Risques (instabilité, downtime, CORS, etc.) :
+  - Plan gratuit limité à 100 requêtes/mois → exécutions planifiées à faible fréquence (≤ 5 tests/run)
+  - Pas de HTTPS gratuit → données en clair sur le réseau (acceptable en environnement de test)
+  - Réponses toujours en HTTP 200, même pour les erreurs → nécessite de parser le champ `success`
