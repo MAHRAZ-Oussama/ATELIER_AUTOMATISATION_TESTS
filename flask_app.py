@@ -12,6 +12,11 @@ Elle ne doit JAMAIS être hardcodée ici.
 """
 
 import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 from flask import Flask, render_template, jsonify, redirect, url_for
 from tester.runner import run_all
 from storage import save_run, list_runs, get_last_run, init_db
